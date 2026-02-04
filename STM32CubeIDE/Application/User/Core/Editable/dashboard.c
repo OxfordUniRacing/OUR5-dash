@@ -35,20 +35,6 @@ lv_obj_t *motor_temp_label;
 //persistent lv_objs for diagnostic state
 lv_obj_t *diagnostic_label;
 
-typedef enum {
-	UNINITIALIZED = 0, LOGO = 1, PRE_DRIVE = 2, DRIVE = 3, DIAGNOSTIC = 4
-} display_state_t;
-
-typedef enum {
-	STATUSWORD_NOTREADY = 0x01,
-	STATUSWORD_SHUTDOWN = 0x02,
-	STATUSWORD_PRECHARGE = 0x04,
-	STATUSWORD_ENERGISED = 0x07,
-	STATUSWORD_ENABLED = 0x08,
-	STATUSWORD_FAULTREACTION = 0x0B,
-	STATUSWORD_FAULTOFF = 0x0D
-} statusword_t;
-
 const char* inverter_statusword(statusword_t word) {
 	switch (word) {
 	case STATUSWORD_NOTREADY:
@@ -270,6 +256,7 @@ void initialize_display_state_pre_drive(void) {
 	generate_style(&style_label_small, &lv_font_montserrat_24, true, false);
 
 	// Helper function to create a label in a grid cell
+	// DIMENSION HERE IS HARDCODED, CHANGE THIS
 	for (int row = 0; row < 2; row++) {
 		for (int col = 0; col < 2; col++) {
 			lv_obj_t *label = lv_label_create(pre_drive_grid);
@@ -555,14 +542,10 @@ void update_display_state_drive() {
 		break;
 	}
 	lv_label_set_text_fmt(battery_soc_label, "SOC: %d%%", battery.pack_soc);
-	lv_bar_set_value(battery_soc_bar, battery.pack_soc, LV_ANIM_OFF);
+//	lv_bar_set_value(battery_soc_bar, battery.pack_soc, LV_ANIM_OFF);
+	lv_bar_set_value(battery_soc_bar, 50, LV_ANIM_OFF);
 	lv_obj_set_style_bg_color(battery_soc_bar, lv_color_hex(battery_soc_color),
 			LV_PART_INDICATOR);
-
-	//inverter temperatures
-	lv_label_set_text_fmt(inverter_temp_label,
-			"#%s %d °C#\t#646464 |#\t#%s %d °C#",
-			LVGL_GREEN, inv1.temperature, LVGL_GREEN, inv2.temperature);
 
 	//motor temperatures
 	lv_label_set_text_fmt(motor_temp_label,

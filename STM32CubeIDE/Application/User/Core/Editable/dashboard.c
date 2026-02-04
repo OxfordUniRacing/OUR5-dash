@@ -84,7 +84,10 @@ void initialize_display_state(display_state_t display_state) {
 	case DIAGNOSTIC:
 		initialize_display_state_diagnostic();
 		break;
+	default:
+		break;
 	}
+
 }
 
 void clear_display_state(display_state_t display_state) {
@@ -100,6 +103,8 @@ void clear_display_state(display_state_t display_state) {
 		break;
 	case DIAGNOSTIC:
 		clear_display_state_diagnostic();
+		break;
+	default:
 		break;
 	}
 }
@@ -117,6 +122,8 @@ void update_display_state(display_state_t display_state) {
 		break;
 	case DIAGNOSTIC:
 		update_display_state_diagnostic();
+		break;
+	default:
 		break;
 	}
 }
@@ -426,6 +433,8 @@ void initialize_display_state_drive(void) {
 	col = 0;
 	lv_obj_set_grid_cell(battery_container, LV_GRID_ALIGN_CENTER, col, 1,
 			LV_GRID_ALIGN_CENTER, row, 1);
+
+	// INVERTER
 
 	// Create a container to hold inverter info
 	lv_obj_t *inverter_container = lv_obj_create(drive_grid);

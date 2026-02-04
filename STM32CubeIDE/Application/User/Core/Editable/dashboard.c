@@ -128,16 +128,31 @@ void update_display_state(display_state_t display_state) {
 	}
 }
 
-lv_obj_t* generate_grid(bool border) {
+lv_obj_t* generate_grid(bool border, int grid_rows, int grid_cols) {
 	lv_obj_t *grid = lv_obj_create(lv_scr_act());
-	; // make use of the additional variable so I don't have to change chatgpt's code
+	// make use of the additional variable so I don't have to change chatgpt's code
+	int MAX_GRID_WIDTH = 800;
+	int MAX_GRID_HEIGHT = 480;
 	lv_obj_clear_flag(grid, LV_OBJ_FLAG_SCROLLABLE);
-	lv_obj_set_size(grid, 800, 480);
+	lv_obj_set_size(grid, MAX_GRID_WIDTH, MAX_GRID_HEIGHT);
 	lv_obj_center(grid); // Optional: center the grid on the screen
 
 	// Enable grid layout
-	static lv_coord_t col_dsc[] = { 400, 400, LV_GRID_TEMPLATE_LAST };
-	static lv_coord_t row_dsc[] = { 240, 240, LV_GRID_TEMPLATE_LAST };
+	// this is hardcoded to 3 cols and 2 rows, make a for loop that uses parameters
+
+	//make this build at compiletiem ideally?
+	// create a grid with the dimensions specified
+	lv_coord_t col_dsc[grid_cols] = { };
+	for (int i = 0; i < grid_cols; i++) {
+		col_dsc[i] = MAX_GRID_WIDTH / grid_cols;
+	}
+	col_dsc[grid_cols - 1] = LV_GRID_TEMPLATE_LAST;
+
+	lv_coord_t row_dsc[grid_rows] = { };
+	for (int i = 0; i < grid_rows; i++) {
+		row_dsc[i] = MAX_GRID_HEIGHT / grid_rows;
+	}
+	row_dsc[grid_rows - 1] = LV_GRID_TEMPLATE_LAST;
 
 	lv_obj_set_layout(grid, LV_LAYOUT_GRID);
 	lv_obj_set_grid_dsc_array(grid, col_dsc, row_dsc);
@@ -246,7 +261,7 @@ void initialize_display_state_pre_drive(void) {
 	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
 
 	// Create a container for the grid
-	pre_drive_grid = generate_grid(true);
+	pre_drive_grid = generate_grid(true, 2, 3);
 
 	static lv_style_t style_label;
 	generate_style(&style_label, &lv_font_montserrat_30, true, false);
@@ -317,7 +332,7 @@ void initialize_display_state_drive(void) {
 	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
 	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
 
-	drive_grid = generate_grid(false);
+	drive_grid = generate_grid(false, 2, 3);
 
 	// RPM
 	arc_with_label_t rpm = create_arc_with_label(drive_grid, 0, 60, "rpm");

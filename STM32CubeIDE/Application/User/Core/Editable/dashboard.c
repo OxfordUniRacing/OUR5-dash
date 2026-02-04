@@ -236,8 +236,10 @@ void set_display_background(void) {
 	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
 	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
 }
-
 void initialize_display_state_logo(void) {
+	// Initialize LV_COLOR_LIGHT_GRAY at runtime
+	LV_COLOR_LIGHT_GRAY = lv_color_hex(LIGHT_GRAY_HEX);
+//	set_display_background(); //needs to be set to white
 	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_white(), 0);
 	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
 	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
@@ -256,9 +258,7 @@ void update_display_state_logo(void) {/*do nothing*/
 }
 
 void initialize_display_state_pre_drive(void) {
-	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
-	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
-	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
+	set_display_background();
 
 	// Create a container for the grid
 	pre_drive_grid = generate_grid(true, 2, 3);
@@ -328,9 +328,7 @@ void update_display_state_pre_drive() {
 }
 
 void initialize_display_state_drive(void) {
-	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
-	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
-	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
+	set_display_background();
 
 	drive_grid = generate_grid(false, 2, 3);
 
@@ -435,9 +433,9 @@ void initialize_display_state_drive(void) {
 	lv_obj_center(battery_soc_bar);
 	lv_bar_set_value(battery_soc_bar, 0, LV_ANIM_OFF);
 
-	lv_obj_set_style_bg_color(battery_soc_bar, lv_color_hex(0x646464),
+	lv_obj_set_style_bg_color(battery_soc_bar, LV_COLOR_LIGHT_GRAY,
 			LV_PART_MAIN);     // background
-	lv_obj_set_style_bg_color(battery_soc_bar, lv_color_hex(0x009632),
+	lv_obj_set_style_bg_color(battery_soc_bar, lv_color_hex(GREEN_HEX),
 			LV_PART_INDICATOR);  // fill
 	lv_obj_set_style_radius(battery_soc_bar, 5, 0);
 
@@ -585,9 +583,7 @@ void update_display_state_drive() {
 }
 
 void initialize_display_state_diagnostic(void) {
-	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
-	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
-	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
+	set_display_background();
 
 	diagnostic_label = lv_label_create(lv_scr_act());
 	lv_obj_set_size(diagnostic_label, 800, 480);

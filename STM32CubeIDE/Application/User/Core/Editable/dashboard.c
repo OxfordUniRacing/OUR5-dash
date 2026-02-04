@@ -56,6 +56,12 @@ const char* inverter_statusword(statusword_t word) {
 	}
 }
 
+lv_color_t LV_COLOR_LIGHT_GRAY;
+
+void initialize_display_colors(){
+	LV_COLOR_LIGHT_GRAY = lv_color_hex(LIGHT_GRAY_HEX);
+}
+
 void initialize_display_state(display_state_t display_state) {
 	switch (display_state) {
 	case LOGO:
@@ -188,7 +194,6 @@ bool center_align) {
 	lv_style_set_pad_left(style_label, 5); // padding for left alignment
 	lv_style_set_text_font(style_label, font);
 }
-lv_color_t LV_COLOR_LIGHT_GRAY;
 
 static arc_with_label_t create_arc_with_label(lv_obj_t *parent, int init_value,
 		int range, const char *units) {
@@ -230,9 +235,7 @@ void set_display_background(void) {
 	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
 }
 void initialize_display_state_logo(void) {
-	// Initialize LV_COLOR_LIGHT_GRAY at runtime
-	LV_COLOR_LIGHT_GRAY = lv_color_hex(LIGHT_GRAY_HEX);
-//	set_display_background(); //needs to be set to white
+	//	set_display_background(); //needs to be set to white
 	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_white(), 0);
 	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
 	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
@@ -252,7 +255,6 @@ void update_display_state_logo(void) {/*do nothing*/
 
 void initialize_display_state_pre_drive(void) {
 	set_display_background();
-
 
 	// Create a container for the grid
 	pre_drive_grid = generate_grid(true, 2, 3);
@@ -324,8 +326,6 @@ void update_display_state_pre_drive() {
 
 void initialize_display_state_drive(void) {
 	set_display_background();
-	// Initialize LV_COLOR_LIGHT_GRAY at runtime
-	LV_COLOR_LIGHT_GRAY = lv_color_hex(LIGHT_GRAY_HEX);
 
 	drive_grid = generate_grid(false, 2, 3);
 

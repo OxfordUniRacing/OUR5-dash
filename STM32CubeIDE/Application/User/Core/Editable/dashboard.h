@@ -127,6 +127,7 @@ void update_inverter(lv_obj_t *label, inv_t *inv);
 void update_battery(lv_obj_t *label, battery_t *battery);
 void update_vcu(lv_obj_t *label, vcu_t *vcu);
 
+void initialize_display_colors(void);
 void initialize_display_state(display_state_t display_state);
 void initialize_display_state_logo(void);
 void initialize_display_state_pre_drive(void);

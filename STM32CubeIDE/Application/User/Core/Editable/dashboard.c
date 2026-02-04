@@ -1,27 +1,16 @@
-#include "lvgl/lvgl.h"
-#include "fdcan.h"
-#include "cmsis_os2.h"
-#include "FreeRTOS.h"
-#include "lv_conf.h"
-#include <stdbool.h>
+#include "dashboard.h"
+#include "fdcan/fdcan_handlers.h"
+#include "gui/gui_task.h"
 
-#include "our_logo_screenshot.h"
+uint32_t time_count = 0;
 
-#define LOGO_TIME 350 //time to show logo before switching to pre-drive state
+inv_t inv1 = { 0 };
+inv_t inv2 = { 0 };
+battery_t battery = { 0 };
+vcu_t vcu = { 0 };
 
-#define LVGL_GREEN "009632"
-#define LVGL_YELLOW "c8c800"
-#define LVGL_RED "ff0000"
-#define LVGL_BLACK "000000"
-#define LVGL_WHITE "ffffff"
-
-#define GREEN_HEX 0x009632
-#define YELLOW_HEX 0xc8c800
-#define RED_HEX 0xff0000
-
-#define INVERTER_CUTOFF_TEMP 86
-
-static uint32_t time_count = 0;
+display_state_t current_display_state = UNINITIALIZED;
+display_state_t commanded_display_state = LOGO;
 
 //persistent lv_objs for logo state
 lv_obj_t *our_logo;

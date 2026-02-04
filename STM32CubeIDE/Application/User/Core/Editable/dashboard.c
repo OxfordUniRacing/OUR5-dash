@@ -58,7 +58,7 @@ const char* inverter_statusword(statusword_t word) {
 
 lv_color_t LV_COLOR_LIGHT_GRAY;
 
-void initialize_display_colors(){
+void initialize_display_colors() {
 	LV_COLOR_LIGHT_GRAY = lv_color_hex(LIGHT_GRAY_HEX);
 }
 
@@ -121,55 +121,54 @@ void update_display_state(display_state_t display_state) {
 }
 
 lv_obj_t* generate_grid(bool border, int grid_rows, int grid_cols) {
-    lv_obj_t *grid = lv_obj_create(lv_scr_act());
-    // make use of the additional variable so I don't have to change chatgpt's code
-    int MAX_GRID_WIDTH = 800;
-    int MAX_GRID_HEIGHT = 480;
-    lv_obj_clear_flag(grid, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_size(grid, MAX_GRID_WIDTH, MAX_GRID_HEIGHT);
-    lv_obj_center(grid); // Optional: center the grid on the screen
+	lv_obj_t *grid = lv_obj_create(lv_scr_act());
+	// make use of the additional variable so I don't have to change chatgpt's code
+	int MAX_GRID_WIDTH = 800;
+	int MAX_GRID_HEIGHT = 480;
+	lv_obj_clear_flag(grid, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_size(grid, MAX_GRID_WIDTH, MAX_GRID_HEIGHT);
+	lv_obj_center(grid); // Optional: center the grid on the screen
 
-    #define MAX_GRID_COLS 10
-    #define MAX_GRID_ROWS 10
-    static lv_coord_t col_dsc_static[MAX_GRID_COLS + 1];
-    static lv_coord_t row_dsc_static[MAX_GRID_ROWS + 1];
+#define MAX_GRID_COLS 10
+#define MAX_GRID_ROWS 10
+	static lv_coord_t col_dsc_static[MAX_GRID_COLS + 1];
+	static lv_coord_t row_dsc_static[MAX_GRID_ROWS + 1];
 
-    if (grid_cols > MAX_GRID_COLS || grid_rows > MAX_GRID_ROWS) {
-        // fallback: clamp or handle error
-        grid_cols = LV_MIN(grid_cols, MAX_GRID_COLS);
-        grid_rows = LV_MIN(grid_rows, MAX_GRID_ROWS);
-    }
+	if (grid_cols > MAX_GRID_COLS || grid_rows > MAX_GRID_ROWS) {
+		// fallback: clamp or handle error
+		grid_cols = LV_MIN(grid_cols, MAX_GRID_COLS);
+		grid_rows = LV_MIN(grid_rows, MAX_GRID_ROWS);
+	}
 
-    // fill column widths and append sentinel after last real entry
-    for (int i = 0; i < grid_cols; i++) {
-        col_dsc_static[i] = MAX_GRID_WIDTH / grid_cols;
-    }
-    col_dsc_static[grid_cols] = LV_GRID_TEMPLATE_LAST;
+	// fill column widths and append sentinel after last real entry
+	for (int i = 0; i < grid_cols; i++) {
+		col_dsc_static[i] = MAX_GRID_WIDTH / grid_cols;
+	}
+	col_dsc_static[grid_cols] = LV_GRID_TEMPLATE_LAST;
 
-    // fill row heights and append sentinel after last real entry
-    for (int i = 0; i < grid_rows; i++) {
-        row_dsc_static[i] = MAX_GRID_HEIGHT / grid_rows;
-    }
-    row_dsc_static[grid_rows] = LV_GRID_TEMPLATE_LAST;
+	// fill row heights and append sentinel after last real entry
+	for (int i = 0; i < grid_rows; i++) {
+		row_dsc_static[i] = MAX_GRID_HEIGHT / grid_rows;
+	}
+	row_dsc_static[grid_rows] = LV_GRID_TEMPLATE_LAST;
 
-    lv_obj_set_layout(grid, LV_LAYOUT_GRID);
-    lv_obj_set_grid_dsc_array(grid, col_dsc_static, row_dsc_static);
-    lv_obj_set_style_pad_all(grid, 0, 0);
-    lv_obj_set_style_pad_row(grid, 0, 0);
-    lv_obj_set_style_pad_column(grid, 0, 0);
-    lv_obj_set_style_bg_color(grid, lv_color_black(), 0);
-    lv_obj_set_style_bg_opa(grid, LV_OPA_COVER, 0);
-    if (border) {
-        lv_obj_set_style_border_color(grid, lv_color_make(0x64, 0x64, 0x64), 0);
-        lv_obj_set_style_border_width(grid, 2, 0);
-    } else {
-        lv_obj_set_style_border_color(grid, lv_color_black(), 0);
-        lv_obj_set_style_border_width(grid, 2, 0);
-    }
+	lv_obj_set_layout(grid, LV_LAYOUT_GRID);
+	lv_obj_set_grid_dsc_array(grid, col_dsc_static, row_dsc_static);
+	lv_obj_set_style_pad_all(grid, 0, 0);
+	lv_obj_set_style_pad_row(grid, 0, 0);
+	lv_obj_set_style_pad_column(grid, 0, 0);
+	lv_obj_set_style_bg_color(grid, lv_color_black(), 0);
+	lv_obj_set_style_bg_opa(grid, LV_OPA_COVER, 0);
+	if (border) {
+		lv_obj_set_style_border_color(grid, lv_color_make(0x64, 0x64, 0x64), 0);
+		lv_obj_set_style_border_width(grid, 2, 0);
+	} else {
+		lv_obj_set_style_border_color(grid, lv_color_black(), 0);
+		lv_obj_set_style_border_width(grid, 2, 0);
+	}
 
-    return grid;
+	return grid;
 }
-
 
 void generate_style(lv_style_t *style_label, const lv_font_t *font, bool border,
 bool center_align) {
@@ -390,8 +389,6 @@ void initialize_display_state_drive(void) {
 	lv_obj_set_grid_cell(diagnostics_container, LV_GRID_ALIGN_CENTER, col, 1,
 			LV_GRID_ALIGN_CENTER, row, 1);
 
-	// BATTERY
-
 	// Create a container to hold battery info
 	lv_obj_t *battery_container = lv_obj_create(drive_grid);
 	lv_obj_set_size(battery_container, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
@@ -552,8 +549,7 @@ void update_display_state_drive() {
 		break;
 	}
 	lv_label_set_text_fmt(battery_soc_label, "SOC: %d%%", battery.pack_soc);
-//	lv_bar_set_value(battery_soc_bar, battery.pack_soc, LV_ANIM_OFF);
-	lv_bar_set_value(battery_soc_bar, 50, LV_ANIM_OFF);
+	lv_bar_set_value(battery_soc_bar, battery.pack_soc, LV_ANIM_OFF);
 	lv_obj_set_style_bg_color(battery_soc_bar, lv_color_hex(battery_soc_color),
 			LV_PART_INDICATOR);
 
@@ -562,16 +558,10 @@ void update_display_state_drive() {
 			"#%s %d °C#\t#646464 |#\t#%s %d °C#",
 			LVGL_GREEN, inv1.motor_temp, LVGL_GREEN, inv2.motor_temp);
 
-	//rpm
+	//speed
 	int mph = (inv1.motor_speed + inv2.motor_speed) * 0.02975f / 5.0f;
 	lv_arc_set_value(rpm_arc, mph);
 	lv_label_set_text_fmt(rpm_arc_label, "%d", mph);
-
-	// acceleration
-
-	// traction control status
-
-	//vehicle speed
 
 }
 

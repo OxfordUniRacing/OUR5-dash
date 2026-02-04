@@ -15,16 +15,15 @@ static void GuiTask(void *pvParameters) {
 
 		if (time_count < LOGO_TIME) {
 			commanded_display_state = LOGO;
-		}
-//		else if (vcu.fault != 0 || !vcu.active) {
-//			commanded_display_state = DIAGNOSTIC;
-//		}
-		else {
-			commanded_display_state = !vcu.rtd ? DRIVE : PRE_DRIVE; // hard code to show DRIVE screen
+		} else if (vcu.fault != 0 || !vcu.active) {
+			commanded_display_state = DIAGNOSTIC;
+		} else {
+			commanded_display_state = vcu.rtd ? DRIVE : PRE_DRIVE;
 		}
 		static bool init_screen = false;
 		if (init_screen) {
 			init_screen = false;
+			initialize_display_colors();
 			initialize_display_state(commanded_display_state);
 		} else if (commanded_display_state != current_display_state) {
 			clear_display_state(current_display_state);

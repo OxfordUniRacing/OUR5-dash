@@ -23,9 +23,10 @@ lv_obj_t *pre_drive_labels[4];
 lv_obj_t *drive_grid;
 lv_obj_t *rpm_arc;
 lv_obj_t *rpm_arc_label;
-lv_obj_t *current_arc;
-lv_obj_t *current_arc_label;
+lv_obj_t *speed_arc;
+lv_obj_t *acceleration_arc;
 lv_obj_t *battery_temp_label;
+lv_obj_t *current_limiting_factor_label;
 lv_obj_t *battery_soc_bar;
 lv_obj_t *battery_soc_label;
 lv_obj_t *inverter_temp_label;
@@ -172,63 +173,46 @@ bool center_align) {
 	lv_style_set_pad_left(style_label, 5); // padding for left alignment
 	lv_style_set_text_font(style_label, font);
 }
+lv_color_t LV_COLOR_LIGHT_GRAY;
 
-lv_obj_t* generate_arc(lv_obj_t *parent, int value, int range) {
-	lv_obj_t *arc = lv_arc_create(parent);
+static arc_with_label_t create_arc_with_label(lv_obj_t *parent, int init_value,
+		int range, const char *units) {
+	arc_with_label_t a = { 0 };
+	a.arc = lv_arc_create(parent);
+	lv_obj_set_size(a.arc, 200, 200);
+	lv_arc_set_range(a.arc, 0, range);
+	lv_arc_set_value(a.arc, init_value);
+	lv_arc_set_bg_angles(a.arc, 0, 270);
+	lv_obj_clear_flag(a.arc, LV_OBJ_FLAG_CLICKABLE);
+	lv_arc_set_mode(a.arc, LV_ARC_MODE_NORMAL);
+	lv_arc_set_rotation(a.arc, 135);
+	lv_obj_set_style_arc_color(a.arc, LV_COLOR_LIGHT_GRAY, LV_PART_MAIN);
+	lv_obj_set_style_arc_width(a.arc, 6, LV_PART_INDICATOR);
+	lv_obj_set_style_bg_opa(a.arc, LV_OPA_TRANSP, LV_PART_KNOB);
 
-	// Set arc size
-	lv_obj_set_size(arc, 200, 200);  // Adjust as needed
+	// container for labels
+	lv_obj_t *container = lv_obj_create(a.arc);
+	lv_obj_set_size(container, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+	lv_obj_center(container);
+	lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
+	lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP, 0);
+	lv_obj_set_style_pad_all(container, 0, 0);
+	lv_obj_clear_flag(container, LV_OBJ_FLAG_SCROLLABLE);
 
-	// Configure arc properties
-	lv_arc_set_range(arc, 0, range);
-	lv_arc_set_value(arc, value);  // Set to your desired value
-	lv_arc_set_bg_angles(arc, 0, 270);
+	a.value_label = lv_label_create(container);
+	lv_label_set_text_fmt(a.value_label, "%d", init_value);
+	lv_obj_set_style_text_font(a.value_label, &lv_font_montserrat_48, 0);
+	a.units_label = lv_label_create(container);
+	lv_label_set_text(a.units_label, units);
+	lv_obj_set_style_text_font(a.units_label, &lv_font_montserrat_24, 0);
 
-	// Make arc non-clickable and static
-	lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);
-	lv_arc_set_mode(arc, LV_ARC_MODE_NORMAL);  // Or SYMMETRICAL/REVERSE
-	lv_arc_set_rotation(arc, 135);  // Optional: rotate to top
-	lv_obj_set_style_arc_color(arc, lv_color_hex(0x646464), LV_PART_MAIN);
-
-	// Hide the knob
-	lv_obj_set_style_pad_all(arc, 0, 0);  // Just in case
-	lv_obj_set_style_arc_width(arc, 6, LV_PART_INDICATOR);  // Adjust thickness
-	lv_obj_set_style_bg_opa(arc, LV_OPA_TRANSP, LV_PART_KNOB);  // Hides knob
-
-	return arc;
+	return a;
 }
 
-lv_obj_t* generate_arc_label(lv_obj_t *parent, const char *units_str) {
-	// Create a container inside the arc to hold labels
-	lv_obj_t *label_container = lv_obj_create(parent);
-	lv_obj_set_size(label_container, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-	lv_obj_center(label_container);  // Center the whole label group in the arc
-
-	// Use vertical flex layout to stack labels
-	lv_obj_set_flex_flow(label_container, LV_FLEX_FLOW_COLUMN);
-	lv_obj_set_style_bg_opa(label_container, LV_OPA_TRANSP, 0);  // Transparent
-	lv_obj_set_style_pad_all(label_container, 0, 0);
-	lv_obj_clear_flag(label_container, LV_OBJ_FLAG_SCROLLABLE);
-	lv_obj_set_style_border_width(label_container, 0, 0);
-	lv_obj_set_style_border_opa(label_container, LV_OPA_TRANSP, 0);
-
-	// Align items to center vertically (main axis)
-	lv_obj_set_style_flex_main_place(label_container, LV_FLEX_ALIGN_CENTER, 0);
-	lv_obj_set_style_flex_cross_place(label_container, LV_FLEX_ALIGN_CENTER, 0);
-
-	// Value label
-	lv_obj_t *arc_label = lv_label_create(label_container);
-	lv_label_set_text_fmt(arc_label, "%d", lv_arc_get_value(parent));
-	lv_obj_set_style_text_color(arc_label, lv_color_white(), 0);
-	lv_obj_set_style_text_font(arc_label, &lv_font_montserrat_48, 0);
-
-	// Sub-label
-	lv_obj_t *arc_sub_label = lv_label_create(label_container);
-	lv_label_set_text(arc_sub_label, units_str);
-	lv_obj_set_style_text_color(arc_sub_label, lv_color_white(), 0);
-	lv_obj_set_style_text_font(arc_sub_label, &lv_font_montserrat_24, 0);
-
-	return arc_label;
+void set_display_background(void) {
+	lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
+	lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0); // Ensure it's not transparent
+	lv_obj_clear_flag(lv_scr_act(), LV_OBJ_FLAG_SCROLLABLE);
 }
 
 void initialize_display_state_logo(void) {
@@ -328,25 +312,68 @@ void initialize_display_state_drive(void) {
 
 	drive_grid = generate_grid(false);
 
-	rpm_arc = generate_arc(drive_grid, 0, 60);
-
+	// RPM
+	arc_with_label_t rpm = create_arc_with_label(drive_grid, 0, 60, "rpm");
+	rpm_arc = rpm.arc;
+	rpm_arc_label = rpm.value_label;
 	// Align it to the center of the cell
 	int row = 1;
 	int col = 0;
 	lv_obj_set_grid_cell(rpm_arc, LV_GRID_ALIGN_CENTER, col, 1,
 			LV_GRID_ALIGN_CENTER, row, 1);
 
-	rpm_arc_label = generate_arc_label(rpm_arc, "mph");
-
-	current_arc = generate_arc(drive_grid, 0, battery.pack_dcl);
-
+	// VEHICLE SPEED
+	arc_with_label_t speed = create_arc_with_label(drive_grid, 0, 150, "mph");
+	speed_arc = speed.arc;
 	// Align it to the center of the cell
 	row = 1;
 	col = 1;
-	lv_obj_set_grid_cell(current_arc, LV_GRID_ALIGN_CENTER, col, 1,
+	lv_obj_set_grid_cell(speed_arc, LV_GRID_ALIGN_CENTER, col, 1,
 			LV_GRID_ALIGN_CENTER, row, 1);
 
-	current_arc_label = generate_arc_label(current_arc, "A");
+	// ACCELERATION
+	arc_with_label_t acceleration = create_arc_with_label(drive_grid, 0, 20,
+			"G");
+	acceleration_arc = acceleration.arc;
+	row = 1;
+	col = 2;
+	lv_obj_set_grid_cell(acceleration_arc, LV_GRID_ALIGN_CENTER, col, 1,
+			LV_GRID_ALIGN_CENTER, row, 1);
+
+	// DIAGNOSTICS
+	lv_obj_t *diagnostics_container = lv_obj_create(drive_grid);
+	lv_obj_set_size(diagnostics_container, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+	lv_obj_center(diagnostics_container);
+
+	lv_obj_set_flex_flow(diagnostics_container, LV_FLEX_FLOW_COLUMN);
+	lv_obj_set_style_bg_opa(diagnostics_container, LV_OPA_TRANSP, 0); // Transparent
+	lv_obj_set_style_pad_all(diagnostics_container, 0, 0);
+	lv_obj_clear_flag(diagnostics_container, LV_OBJ_FLAG_SCROLLABLE);
+	lv_obj_set_style_border_width(diagnostics_container, 0, 0);
+	lv_obj_set_style_border_opa(diagnostics_container, LV_OPA_TRANSP, 0);
+
+	// LIMITING FACTOR LABEL
+	static lv_style_t limiting_factor_text_style;
+	generate_style(&limiting_factor_text_style, &lv_font_montserrat_24, false,
+	false);
+	lv_obj_t *limiting_factor_label = lv_label_create(diagnostics_container);
+	lv_obj_add_style(limiting_factor_label, &limiting_factor_text_style, 0);
+	lv_label_set_text(limiting_factor_label, "Limiting factor");
+
+	// FACTOR
+	static lv_style_t limiting_factor_style;
+	generate_style(&limiting_factor_style, &lv_font_montserrat_48, false, true);
+	current_limiting_factor_label = lv_label_create(diagnostics_container);
+	lv_obj_add_style(current_limiting_factor_label, &limiting_factor_style, 0);
+	lv_label_set_recolor(current_limiting_factor_label, true);
+	lv_label_set_text(current_limiting_factor_label, "Banana");
+
+	row = 0;
+	col = 2;
+	lv_obj_set_grid_cell(diagnostics_container, LV_GRID_ALIGN_CENTER, col, 1,
+			LV_GRID_ALIGN_CENTER, row, 1);
+
+	// BATTERY
 
 	// Create a container to hold battery info
 	lv_obj_t *battery_container = lv_obj_create(drive_grid);
@@ -525,9 +552,12 @@ void update_display_state_drive() {
 	lv_arc_set_value(rpm_arc, mph);
 	lv_label_set_text_fmt(rpm_arc_label, "%d", mph);
 
-	//current
-	lv_arc_set_value(current_arc, (int) battery.pack_current);
-	lv_label_set_text_fmt(current_arc_label, "%d", (int) battery.pack_current);
+	// acceleration
+
+	// traction control status
+
+	//vehicle speed
+
 }
 
 void initialize_display_state_diagnostic(void) {

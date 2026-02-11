@@ -216,6 +216,8 @@ static arc_with_label_t create_arc_with_label(lv_obj_t *parent, int init_value,
 	lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_style_bg_opa(container, LV_OPA_TRANSP, 0);
 	lv_obj_set_style_pad_all(container, 0, 0);
+	lv_obj_set_style_border_width(container, 0, 0);
+	lv_obj_set_style_border_opa(container, LV_OPA_TRANSP, 0);
 	lv_obj_clear_flag(container, LV_OBJ_FLAG_SCROLLABLE);
 
 	a.value_label = lv_label_create(container);
